@@ -1,0 +1,111 @@
+/* Authentication specific styles */
+.auth-container {
+    max-width: 450px;
+    margin: 3rem auto;
+    padding: 0 20px;
+}
+
+.auth-card {
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--box-shadow-lg);
+    overflow: hidden;
+}
+
+.auth-header {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.auth-title {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+    font-size: 1rem;
+    opacity: 0.8;
+}
+
+.auth-body {
+    padding: 2rem;
+}
+
+.auth-form .form-group {
+    margin-bottom: 1.5rem;
+}
+
+.auth-form .form-control {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+}
+
+.auth-form .form-label {
+    font-weight: 500;
+}
+
+.auth-footer {
+    text-align: center;
+    padding: 1rem 2rem 2rem;
+    border-top: 1px solid var(--bg-dark);
+    background-color: var(--bg-light);
+}
+
+.auth-link {
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.auth-illustration {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+}
+
+.auth-illustration svg {
+    width: 70px;
+    height: 70px;
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Password strength meter */
+.password-strength {
+    height: 5px;
+    margin-top: 0.5rem;
+    border-radius: 5px;
+    background-color: var(--bg-dark);
+    overflow: hidden;
+}
+
+.password-strength-meter {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease;
+}
+
+.strength-weak {
+    width: 33.33%;
+    background-color: var(--danger);
+}
+
+.strength-medium {
+    width: 66.66%;
+    background-color: var(--warning);
+}
+
+.strength-strong {
+    width: 100%;
+    background-color: var(--success);
+}

@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Report Lost Item - Lost and Found Management System{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-search me-2"></i>Report a Lost Item
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        Please provide as much detail as possible about the item you've lost. The more information you provide, the higher the chance of finding a match.
+                    </p>
+                    
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="title" class="form-label">{{ form.title.label }}</label>
+                                {{ form.title(class="form-control", placeholder="e.g., Blue Backpack") }}
+                                <div class="invalid-feedback">
+                                    Please provide an item name.
+                                </div>
+                                {% for error in form.title.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="category" class="form-label">{{ form.category.label }}</label>
+                                {{ form.category(class="form-control") }}
+                                <div class="invalid-feedback">
+                                    Please select a category.
+                                </div>
+                                {% for error in form.category.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="date_lost" class="form-label">{{ form.date_lost.label }}</label>
+                                {{ form.date_lost(class="form-control", type="date") }}
+                                <div class="invalid-feedback">
+                                    Please provide the date when the item was lost.
+                                </div>
+                                {% for error in form.date_lost.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="location_lost" class="form-label">{{ form.location_lost.label }}</label>
+                                {{ form.location_lost(class="form-control", placeholder="e.g., Library, 2nd Floor") }}
+                                <div class="invalid-feedback">
+                                    Please provide the location where the item was lost.
+                                </div>
+                                {% for error in form.location_lost.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">{{ form.description.label }}</label>
+                            {{ form.description(class="form-control", rows="4", placeholder="Provide detailed description including color, size, brand, distinct features, etc.") }}
+                            <div class="invalid-feedback">
+                                Please provide a detailed description of the item.
+                            </div>
+                            {% for error in form.description.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="image" class="form-label">{{ form.image.label }}</label>
+                            <div class="input-group">
+                                {{ form.image(class="form-control") }}
+                                <div class="invalid-feedback">
+                                    Please upload a valid image file (JPG, JPEG, PNG).
+                                </div>
+                            </div>
+                            {% for error in form.image.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">Upload an image of your item to help with identification. Max size: 5MB.</div>
+                            <div class="image-preview mt-2"></div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-light me-md-2">Cancel</a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">Tips for Better Results</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-check-circle text-success me-2"></i>Be Specific</h6>
+                            <p class="text-muted small">Include brand names, colors, sizes, and materials in your description.</p>
+                            
+                            <h6><i class="fas fa-check-circle text-success me-2"></i>Mention Unique Features</h6>
+                            <p class="text-muted small">Describe any custom stickers, engravings, or other distinguishing marks.</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-check-circle text-success me-2"></i>Remember the Time</h6>
+                            <p class="text-muted small">Try to be as accurate as possible about when and where you lost the item.</p>
+                            
+                            <h6><i class="fas fa-check-circle text-success me-2"></i>Add a Photo</h6>
+                            <p class="text-muted small">A clear image of the item (or something similar) greatly increases the chances of a match.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/form.js') }}"></script>
+{% endblock %}

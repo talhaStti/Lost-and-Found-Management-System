@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}My Matches - Lost and Found Management System{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-exchange-alt me-2"></i>
+                        {% if current_user.is_admin %}
+                            Manage All Matches
+                        {% else %}
+                            My Potential Matches
+                        {% endif %}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        {% if current_user.is_admin %}
+                            Review and manage potential matches between lost and found items.
+                        {% else %}
+                            Below are potential matches for your lost and found items. These matches are automatically generated based on item details.
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lost Items Matches -->
+    {% if lost_item_matches %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-search me-2 text-danger"></i>Matches for Your Lost Items
+                    </h4>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Your Lost Item</th>
+                                    <th>Potential Found Item</th>
+                                    <th>Found By</th>
+                                    <th>Match Confidence</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for match in lost_item_matches %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('view_lost_item', item_id=match.lost_item.id) }}">
+                                            {{ match.lost_item.title }}
+                                        </a>
+                                        <div class="small text-muted">
+                                            Lost on {{ match.lost_item.date_lost.strftime('%b %d, %Y') }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('view_found_item', item_id=match.found_item.id) }}">
+                                            {{ match.found_item.title }}
+                                        </a>
+                                        <div class="small text-muted">
+                                            Found on {{ match.found_item.date_found.strftime('%b %d, %Y') }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ match.finder.username }}
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 5px;">
+                                            <div class="progress-bar bg-primary" role="progressbar" 
+                                                style="width: {{ (match.match.match_score * 100)|int }}%;" 
+                                                aria-valuenow="{{ (match.match.match_score * 100)|int }}" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100"></div>
+                                        </div>
+                                        <small class="text-muted">{{ (match.match.match_score * 100)|int }}% match</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge status-{{ match.match.status }}">
+                                            {{ match.match.status|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('view_found_item', item_id=match.found_item.id) }}" class="btn btn-sm btn-outline-primary">
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Found Items Matches -->
+    {% if found_item_matches %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-box me-2 text-success"></i>Matches for Your Found Items
+                    </h4>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Your Found Item</th>
+                                    <th>Potential Lost Item</th>
+                                    <th>Lost By</th>
+                                    <th>Match Confidence</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for match in found_item_matches %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('view_found_item', item_id=match.found_item.id) }}">
+                                            {{ match.found_item.title }}
+                                        </a>
+                                        <div class="small text-muted">
+                                            Found on {{ match.found_item.date_found.strftime('%b %d, %Y') }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('view_lost_item', item_id=match.lost_item.id) }}">
+                                            {{ match.lost_item.title }}
+                                        </a>
+                                        <div class="small text-muted">
+                                            Lost on {{ match.lost_item.date_lost.strftime('%b %d, %Y') }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ match.owner.username }}
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 5px;">
+                                            <div class="progress-bar bg-primary" role="progressbar" 
+                                                style="width: {{ (match.match.match_score * 100)|int }}%;" 
+                                                aria-valuenow="{{ (match.match.match_score * 100)|int }}" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100"></div>
+                                        </div>
+                                        <small class="text-muted">{{ (match.match.match_score * 100)|int }}% match</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge status-{{ match.match.status }}">
+                                            {{ match.match.status|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('view_lost_item', item_id=match.lost_item.id) }}" class="btn btn-sm btn-outline-primary">
+                                            View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if current_user.is_admin %}
+    <!-- All Pending Matches (Admin Only) -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-tasks me-2"></i>All Pending Matches
+                    </h4>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Lost Item</th>
+                                    <th>Lost By</th>
+                                    <th>Found Item</th>
+                                    <th>Found By</th>
+                                    <th>Match Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for match in all_pending_matches|default([]) %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('view_lost_item', item_id=match.lost_item.id) }}">
+                                            {{ match.lost_item.title }}
+                                        </a>
+                                        <div class="small text-muted">
+                                            Lost on {{ match.lost_item.date_lost.strftime('%b %d, %Y') }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ match.lost_item.owner.username }}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('view_found_item', item_id=match.found_item.id) }}">
+                                            {{ match.found_item.title }}
+                                        </a>
+                                        <div class="small text-muted">
+                                            Found on {{ match.found_item.date_found.strftime('%b %d, %Y') }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        {{ match.found_item.finder.username }}
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 5px;">
+                                            <div class="progress-bar bg-primary" role="progressbar" 
+                                                style="width: {{ (match.match.match_score * 100)|int }}%;" 
+                                                aria-valuenow="{{ (match.match.match_score * 100)|int }}" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100"></div>
+                                        </div>
+                                        <small class="text-muted">{{ (match.match.match_score * 100)|int }}% match</small>
+                                    </td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('process_match', match_id=match.match.id) }}" class="match-review-form">
+                                            <input type="hidden" name="match_id" value="{{ match.match.id }}">
+                                            <div class="d-flex gap-1 mb-1">
+                                                <button type="submit" name="action" value="approve" class="btn btn-sm btn-success">
+                                                    <i class="fas fa-check me-1"></i> Approve
+                                                </button>
+                                                <button type="submit" name="action" value="reject" class="btn btn-sm btn-danger">
+                                                    <i class="fas fa-times me-1"></i> Reject
+                                                </button>
+                                            </div>
+                                            <textarea name="notes" placeholder="Admin notes (optional)" class="form-control form-control-sm" rows="1"></textarea>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-check-circle fa-2x mb-3 text-muted"></i>
+                                        <p class="text-muted mb-0">No pending matches to review.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% if not lost_item_matches and not found_item_matches and not current_user.is_admin %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-search fa-3x mb-3 text-muted"></i>
+                    <h4>No Matches Found</h4>
+                    <p class="text-muted mb-4">You don't have any potential matches for your items yet.</p>
+                    
+                    <div class="row justify-content-center">
+                        <div class="col-md-8">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5>What you can do:</h5>
+                                    <ul class="text-start">
+                                        <li>Make sure you've provided detailed descriptions for your items</li>
+                                        <li>Check back regularly as new items are constantly being added</li>
+                                        <li>Report any new lost or found items you might have</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <a href="{{ url_for('report_lost_item') }}" class="btn btn-primary me-2">
+                            <i class="fas fa-search me-1"></i> Report Lost Item
+                        </a>
+                        <a href="{{ url_for('report_found_item') }}" class="btn btn-secondary">
+                            <i class="fas fa-box me-1"></i> Report Found Item
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

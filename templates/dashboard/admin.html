@@ -1,0 +1,384 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Lost and Found Management System{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<!-- Chart.js for visualizations -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">
+                    {{ current_user.username[0]|upper }}
+                </div>
+                <div>
+                    <p class="sidebar-username">{{ current_user.username }}</p>
+                    <p class="sidebar-role">Administrator</p>
+                </div>
+            </div>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{{ url_for('admin_dashboard') }}" class="sidebar-link">
+                    <i class="fas fa-tachometer-alt sidebar-icon"></i> Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('search_items') }}" class="sidebar-link">
+                    <i class="fas fa-search sidebar-icon"></i> Search Items
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('report_lost_item') }}" class="sidebar-link">
+                    <i class="fas fa-search sidebar-icon"></i> Report Lost Item
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('report_found_item') }}" class="sidebar-link">
+                    <i class="fas fa-box sidebar-icon"></i> Report Found Item
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('view_matches') }}" class="sidebar-link">
+                    <i class="fas fa-exchange-alt sidebar-icon"></i> Manage Matches
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('logout') }}" class="sidebar-link">
+                    <i class="fas fa-sign-out-alt sidebar-icon"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Admin Dashboard</h1>
+            <div>
+                <a href="{{ url_for('report_lost_item') }}" class="btn btn-primary btn-sm me-2">
+                    <i class="fas fa-plus me-1"></i> Report Lost
+                </a>
+                <a href="{{ url_for('report_found_item') }}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-plus me-1"></i> Report Found
+                </a>
+            </div>
+        </div>
+        
+        <!-- Status Cards -->
+        <div class="status-cards">
+            <div class="status-card">
+                <div class="status-card-icon lost">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="status-card-content">
+                    <h3>{{ stats.total_users }}</h3>
+                    <p>Total Users</p>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-card-icon lost">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="status-card-content">
+                    <h3>{{ stats.total_lost }}</h3>
+                    <p>Lost Items</p>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-card-icon found">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="status-card-content">
+                    <h3>{{ stats.total_found }}</h3>
+                    <p>Found Items</p>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-card-icon pending">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <div class="status-card-content">
+                    <h3>{{ stats.pending_matches }}</h3>
+                    <p>Pending Matches</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Charts and Analytics -->
+        <div class="row mb-4">
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Item Status Distribution</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="statusChart" 
+                                data-unresolved="{{ stats.total_lost - (recent_lost|selectattr('status', 'equalto', 'resolved')|list|length) }}" 
+                                data-resolved="{{ recent_lost|selectattr('status', 'equalto', 'resolved')|list|length }}"
+                                data-unclaimed="{{ stats.total_found - (recent_found|selectattr('status', 'equalto', 'claimed')|list|length) }}"
+                                data-claimed="{{ recent_found|selectattr('status', 'equalto', 'claimed')|list|length }}"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="mb-0">Match Statistics</h5>
+                    </div>
+                    <div class="card-body d-flex flex-column justify-content-center">
+                        <div class="text-center">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="p-3 bg-light rounded mb-2">
+                                        <h2 class="text-primary mb-0">{{ stats.pending_matches }}</h2>
+                                    </div>
+                                    <h6 class="text-muted">Pending</h6>
+                                </div>
+                                <div class="col-6">
+                                    <div class="p-3 bg-light rounded mb-2">
+                                        <h2 class="text-success mb-0">{{ stats.approved_matches }}</h2>
+                                    </div>
+                                    <h6 class="text-muted">Approved</h6>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-3">
+                                <p class="text-muted">Success Rate: 
+                                    {% if stats.total_lost > 0 %}
+                                        {{ (stats.approved_matches / stats.total_lost * 100)|int }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </p>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {% if stats.total_lost > 0 %}{{ (stats.approved_matches / stats.total_lost * 100)|int }}{% else %}0{% endif %}%;"
+                                         aria-valuenow="{% if stats.total_lost > 0 %}{{ (stats.approved_matches / stats.total_lost * 100)|int }}{% else %}0{% endif %}"
+                                         aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pending Matches Section -->
+        <div class="item-table-container mb-4">
+            <div class="item-table-header">
+                <h4 class="item-table-title">Pending Matches ({{ pending_matches|length }})</h4>
+                <a href="{{ url_for('view_matches') }}" class="btn btn-sm btn-outline-primary">View All Matches</a>
+            </div>
+            
+            <div class="table-responsive">
+                {% if pending_matches %}
+                <table class="table item-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Lost Item</th>
+                            <th>Found Item</th>
+                            <th>Match Score</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for match_data in pending_matches %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('view_lost_item', item_id=match_data.lost_item.id) }}">
+                                    {{ match_data.lost_item.title }}
+                                </a>
+                                <small class="d-block text-muted">by {{ match_data.lost_by }}</small>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('view_found_item', item_id=match_data.found_item.id) }}">
+                                    {{ match_data.found_item.title }}
+                                </a>
+                                <small class="d-block text-muted">by {{ match_data.found_by }}</small>
+                            </td>
+                            <td>
+                                <div class="progress" style="height: 5px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" 
+                                         style="width: {{ (match_data.match.match_score * 100)|int }}%;" 
+                                         aria-valuenow="{{ (match_data.match.match_score * 100)|int }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100"></div>
+                                </div>
+                                <small class="text-muted">{{ (match_data.match.match_score * 100)|int }}% match</small>
+                            </td>
+                            <td>{{ match_data.match.created_at.strftime('%b %d, %Y') }}</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('process_match', match_id=match_data.match.id) }}" class="match-review-form">
+                                    {{ AdminMatchForm.hidden_tag() if AdminMatchForm }}
+                                    <input type="hidden" name="match_id" value="{{ match_data.match.id }}">
+                                    <div class="match-admin-actions">
+                                        <button type="submit" name="action" value="approve" class="btn btn-sm btn-success">
+                                            <i class="fas fa-check me-1"></i> Approve
+                                        </button>
+                                        <button type="submit" name="action" value="reject" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-times me-1"></i> Reject
+                                        </button>
+                                    </div>
+                                    <textarea name="notes" placeholder="Admin notes (optional)" class="form-control form-control-sm mt-2" rows="1"></textarea>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="text-center p-4">
+                    <i class="fas fa-check-circle fa-3x mb-3 text-muted"></i>
+                    <p class="text-muted">No pending matches to review.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Recent Lost Items -->
+        <div class="item-table-container mb-4">
+            <div class="item-table-header">
+                <h4 class="item-table-title">Recent Lost Items</h4>
+                <div class="d-flex">
+                    <input type="text" id="lostItemFilter" class="form-control form-control-sm me-2" placeholder="Filter items...">
+                    <a href="{{ url_for('search_items') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table item-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Reported By</th>
+                            <th>Date Lost</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lostItemsTable">
+                        {% for item in recent_lost %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('view_lost_item', item_id=item.id) }}">
+                                    {{ item.title }}
+                                </a>
+                            </td>
+                            <td>{{ item.owner.username }}</td>
+                            <td>{{ item.date_lost.strftime('%b %d, %Y') }}</td>
+                            <td>{{ item.location_lost }}</td>
+                            <td>
+                                <span class="badge status-{{ item.status }}">
+                                    {{ item.status|capitalize }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('view_lost_item', item_id=item.id) }}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Recent Found Items -->
+        <div class="item-table-container">
+            <div class="item-table-header">
+                <h4 class="item-table-title">Recent Found Items</h4>
+                <div class="d-flex">
+                    <input type="text" id="foundItemFilter" class="form-control form-control-sm me-2" placeholder="Filter items...">
+                    <a href="{{ url_for('search_items') }}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table item-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Reported By</th>
+                            <th>Date Found</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="foundItemsTable">
+                        {% for item in recent_found %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('view_found_item', item_id=item.id) }}">
+                                    {{ item.title }}
+                                </a>
+                            </td>
+                            <td>{{ item.finder.username }}</td>
+                            <td>{{ item.date_found.strftime('%b %d, %Y') }}</td>
+                            <td>{{ item.location_found }}</td>
+                            <td>
+                                <span class="badge status-{{ item.status }}">
+                                    {{ item.status|capitalize }}
+                                </span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('view_found_item', item_id=item.id) }}" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality for item tables
+    const lostItemFilter = document.getElementById('lostItemFilter');
+    if (lostItemFilter) {
+        lostItemFilter.addEventListener('input', function() {
+            filterTable('lostItemsTable', this.value);
+        });
+    }
+    
+    const foundItemFilter = document.getElementById('foundItemFilter');
+    if (foundItemFilter) {
+        foundItemFilter.addEventListener('input', function() {
+            filterTable('foundItemsTable', this.value);
+        });
+    }
+    
+    function filterTable(tableId, query) {
+        const table = document.getElementById(tableId);
+        const rows = table.getElementsByTagName('tr');
+        const filterValue = query.toLowerCase().trim();
+        
+        for (let i = 0; i < rows.length; i++) {
+            const text = rows[i].textContent.toLowerCase();
+            rows[i].style.display = text.includes(filterValue) ? '' : 'none';
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Lost and Found Management System{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-illustration">
+                <i class="fas fa-sign-in-alt fa-3x"></i>
+            </div>
+            <h2 class="auth-title">Welcome Back</h2>
+            <p class="auth-subtitle">Sign in to your account to continue</p>
+        </div>
+        
+        <div class="auth-body">
+            <form method="post" class="auth-form needs-validation" novalidate>
+                {{ form.hidden_tag() }}
+                
+                <div class="form-group mb-3">
+                    <label for="email" class="form-label">{{ form.email.label }}</label>
+                    {{ form.email(class="form-control", placeholder="Enter your email", autocomplete="email", required=true) }}
+                    <div class="invalid-feedback">
+                        Please enter a valid email address.
+                    </div>
+                    {% for error in form.email.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-group mb-4">
+                    <label for="password" class="form-label">{{ form.password.label }}</label>
+                    {{ form.password(class="form-control", placeholder="Enter your password", autocomplete="current-password", required=true) }}
+                    <div class="invalid-feedback">
+                        Please enter your password.
+                    </div>
+                    {% for error in form.password.errors %}
+                        <div class="text-danger">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="d-grid">
+                    {{ form.submit(class="btn btn-primary auth-btn") }}
+                </div>
+            </form>
+        </div>
+        
+        <div class="auth-footer">
+            <p class="mb-0">Don't have an account? <a href="{{ url_for('register') }}" class="auth-link">Register now</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/form.js') }}"></script>
+{% endblock %}

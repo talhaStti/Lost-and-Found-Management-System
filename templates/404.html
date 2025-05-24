@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - Lost and Found Management System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card text-center">
+                <div class="card-body py-5">
+                    <i class="fas fa-search fa-5x text-primary mb-4"></i>
+                    <h1 class="display-4">404</h1>
+                    <h2 class="mb-4">Page Not Found</h2>
+                    <p class="lead text-muted mb-4">The page you're looking for seems to be lost. Perhaps we need to add it to our lost items database!</p>
+                    <div class="d-grid gap-2 col-md-6 mx-auto">
+                        <a href="{{ url_for('home') }}" class="btn btn-primary">
+                            <i class="fas fa-home me-2"></i>Return to Home
+                        </a>
+                        <a href="{{ url_for('search_items') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-search me-2"></i>Search Items
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

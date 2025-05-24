@@ -1,0 +1,429 @@
+:root {
+    /* Main color palette */
+    --primary-color: hsl(210, 100%, 50%); /* #0080ff */
+    --primary-light: hsl(210, 100%, 85%); /* #b3d9ff */
+    --primary-dark: hsl(210, 100%, 30%); /* #004d99 */
+    
+    --secondary-color: hsl(200, 70%, 55%); /* #3da9d4 */
+    --secondary-light: hsl(200, 70%, 90%); /* #cfeaf5 */
+    --secondary-dark: hsl(200, 70%, 35%); /* #2570a1 */
+    
+    /* Neutrals */
+    --bg-light: hsl(210, 20%, 98%); /* #f8f9fb */
+    --bg-medium: hsl(210, 15%, 95%); /* #f0f2f5 */
+    --bg-dark: hsl(210, 10%, 92%); /* #e8ebed */
+    
+    --text-primary: hsl(210, 15%, 20%); /* #2d3644 */
+    --text-secondary: hsl(210, 10%, 40%); /* #5f6774 */
+    --text-muted: hsl(210, 10%, 60%); /* #8c929c */
+    
+    /* Status colors */
+    --success: hsl(145, 63%, 49%); /* #30c67c */
+    --warning: hsl(45, 100%, 60%); /* #ffcc33 */
+    --danger: hsl(354, 70%, 54%); /* #e74c3c */
+    --info: hsl(200, 100%, 65%); /* #33ccff */
+    
+    /* Sizing and spacing */
+    --border-radius: 6px;
+    --border-radius-lg: 10px;
+    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --box-shadow-lg: 0 5px 15px rgba(0, 0, 0, 0.15);
+    
+    /* Typography */
+    --font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-family-headings: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Base Styles */
+body {
+    font-family: var(--font-family);
+    color: var(--text-primary);
+    background-color: var(--bg-light);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-family-headings);
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-top: 0;
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* Container */
+.container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Navbar */
+.navbar {
+    background-color: white;
+    box-shadow: var(--box-shadow);
+    padding: 0.75rem 0;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.navbar-brand img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.navbar-nav .nav-link {
+    color: var(--text-secondary);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+    color: var(--primary-color);
+}
+
+/* Cards */
+.card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 1.5rem;
+    border: none;
+}
+
+.card-header {
+    background-color: white;
+    border-bottom: 1px solid var(--bg-dark);
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    border-top-left-radius: var(--border-radius) !important;
+    border-top-right-radius: var(--border-radius) !important;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.card-text {
+    color: var(--text-secondary);
+}
+
+/* Buttons */
+.btn {
+    font-weight: 500;
+    border-radius: var(--border-radius);
+    padding: 0.5rem 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-dark);
+    border-color: var(--secondary-dark);
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Forms */
+.form-control {
+    border-radius: var(--border-radius);
+    border: 1px solid var(--bg-dark);
+    padding: 0.5rem 0.75rem;
+    transition: border-color 0.2s ease;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(0, 128, 255, 0.15);
+}
+
+.form-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.form-text {
+    color: var(--text-muted);
+}
+
+/* Alerts */
+.alert {
+    border-radius: var(--border-radius);
+    border: none;
+    padding: 1rem 1.25rem;
+}
+
+.alert-success {
+    background-color: hsla(145, 63%, 49%, 0.1);
+    color: hsl(145, 63%, 30%);
+}
+
+.alert-danger {
+    background-color: hsla(354, 70%, 54%, 0.1);
+    color: hsl(354, 70%, 35%);
+}
+
+.alert-warning {
+    background-color: hsla(45, 100%, 60%, 0.1);
+    color: hsl(45, 100%, 35%);
+}
+
+.alert-info {
+    background-color: hsla(200, 100%, 65%, 0.1);
+    color: hsl(200, 100%, 40%);
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+    border-radius: 50rem;
+}
+
+.badge-success {
+    background-color: var(--success);
+}
+
+.badge-warning {
+    background-color: var(--warning);
+    color: var(--text-primary);
+}
+
+.badge-danger {
+    background-color: var(--danger);
+}
+
+.badge-info {
+    background-color: var(--info);
+}
+
+/* Status badges */
+.status-unresolved,
+.status-unclaimed {
+    background-color: var(--warning);
+    color: var(--text-primary);
+}
+
+.status-resolved,
+.status-claimed {
+    background-color: var(--success);
+    color: white;
+}
+
+.status-pending {
+    background-color: var(--info);
+    color: white;
+}
+
+.status-rejected {
+    background-color: var(--danger);
+    color: white;
+}
+
+/* Tables */
+.table {
+    margin-bottom: 0;
+}
+
+.table thead th {
+    background-color: var(--bg-medium);
+    border-bottom: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.table tbody td {
+    vertical-align: middle;
+    padding: 0.75rem;
+}
+
+/* Footer */
+.footer {
+    background-color: white;
+    border-top: 1px solid var(--bg-dark);
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+.footer-text {
+    color: var(--text-muted);
+}
+
+.footer-links a {
+    color: var(--text-secondary);
+    margin-right: 1rem;
+}
+
+.footer-links a:hover {
+    color: var(--primary-color);
+}
+
+/* Hero section */
+.hero {
+    padding: 4rem 0;
+    background-color: white;
+    text-align: center;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Stats */
+.stats-container {
+    background-color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+    border-top: 1px solid var(--bg-dark);
+    border-bottom: 1px solid var(--bg-dark);
+}
+
+.stat-item {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Item cards */
+.item-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--box-shadow-lg);
+}
+
+.item-card-img {
+    height: 160px;
+    object-fit: cover;
+    background-color: var(--bg-medium);
+    border-top-left-radius: var(--border-radius);
+    border-top-right-radius: var(--border-radius);
+}
+
+.item-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item-card-category {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.item-card-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero {
+        padding: 2rem 0;
+    }
+    
+    .hero-title {
+        font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+        font-size: 1rem;
+    }
+    
+    .stat-value {
+        font-size: 2rem;
+    }
+    
+    .container {
+        padding: 0 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .navbar-brand {
+        font-size: 1.25rem;
+    }
+}

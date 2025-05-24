@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if item_type == 'lost' %}
+        Lost Item: {{ item.title }}
+    {% else %}
+        Found Item: {{ item.title }}
+    {% endif %}
+    - Lost and Found Management System
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">
+                        {% if item_type == 'lost' %}
+                            <i class="fas fa-search me-2 text-danger"></i>Lost Item
+                        {% else %}
+                            <i class="fas fa-box me-2 text-success"></i>Found Item
+                        {% endif %}
+                    </h3>
+                    <span class="badge status-{{ item.status }}">{{ item.status|capitalize }}</span>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Item Image -->
+                        <div class="col-md-4 mb-3 mb-md-0">
+                            {% if item.image_path %}
+                                <img src="{{ url_for('static', filename=item.image_path) }}" class="img-fluid rounded" alt="{{ item.title }}">
+                            {% else %}
+                                <div class="bg-light rounded d-flex justify-content-center align-items-center p-4" style="height: 200px;">
+                                    <div class="text-center text-muted">
+                                        <i class="fas fa-image fa-3x mb-2"></i>
+                                        <p>No image available</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Item Details -->
+                        <div class="col-md-8">
+                            <h2 class="mb-3">{{ item.title }}</h2>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex mb-2">
+                                    <div class="text-muted" style="width: 120px;">
+                                        <i class="fas fa-tag me-1"></i> Category:
+                                    </div>
+                                    <div>
+                                        {% if item.category %}
+                                            {{ item.category.name }}
+                                        {% else %}
+                                            Not specified
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex mb-2">
+                                    <div class="text-muted" style="width: 120px;">
+                                        <i class="fas fa-calendar-alt me-1"></i> Date:
+                                    </div>
+                                    <div>
+                                        {% if item_type == 'lost' %}
+                                            {{ item.date_lost.strftime('%B %d, %Y') }}
+                                        {% else %}
+                                            {{ item.date_found.strftime('%B %d, %Y') }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex mb-2">
+                                    <div class="text-muted" style="width: 120px;">
+                                        <i class="fas fa-map-marker-alt me-1"></i> Location:
+                                    </div>
+                                    <div>
+                                        {% if item_type == 'lost' %}
+                                            {{ item.location_lost }}
+                                        {% else %}
+                                            {{ item.location_found }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex mb-2">
+                                    <div class="text-muted" style="width: 120px;">
+                                        <i class="fas fa-user me-1"></i> Reported by:
+                                    </div>
+                                    <div>
+                                        {{ owner.username }}
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex mb-2">
+                                    <div class="text-muted" style="width: 120px;">
+                                        <i class="fas fa-clock me-1"></i> Reported on:
+                                    </div>
+                                    <div>
+                                        {{ item.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <p class="text-muted mb-1"><i class="fas fa-align-left me-1"></i> Description:</p>
+                                <p>{{ item.description }}</p>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="d-flex flex-wrap gap-2 mt-4">
+                                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                                </a>
+                                
+                                {% if current_user.is_authenticated and current_user.id == item.user_id %}
+                                    <!-- Owner actions -->
+                                    {% if item_type == 'lost' and item.status == 'unresolved' %}
+                                        <form method="POST" action="#" class="d-inline status-update-form">
+                                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                                            <input type="hidden" name="item_type" value="lost">
+                                            <input type="hidden" name="status" value="resolved">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-check me-1"></i> Mark as Found
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    
+                                    {% if item_type == 'found' and item.status == 'unclaimed' %}
+                                        <form method="POST" action="#" class="d-inline status-update-form">
+                                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                                            <input type="hidden" name="item_type" value="found">
+                                            <input type="hidden" name="status" value="claimed">
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-check me-1"></i> Mark as Claimed
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                {% endif %}
+                                
+                                {% if current_user.is_admin %}
+                                    <!-- Admin actions -->
+                                    {% if item_type == 'lost' %}
+                                        <a href="#" class="btn btn-primary">
+                                            <i class="fas fa-search me-1"></i> Find Matches
+                                        </a>
+                                    {% else %}
+                                        <a href="#" class="btn btn-primary">
+                                            <i class="fas fa-search me-1"></i> Find Matches
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Matching Section -->
+            {% if matches %}
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        {% if item_type == 'lost' %}
+                            <i class="fas fa-exchange-alt me-2"></i>Matching Found Items
+                        {% else %}
+                            <i class="fas fa-exchange-alt me-2"></i>Matching Lost Items
+                        {% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for match_item in matches %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ match_item.title }}</h5>
+                                    <p class="card-text small">{{ match_item.description|truncate(100) }}</p>
+                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                        <span class="text-muted small">
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            {% if item_type == 'lost' %}
+                                                {{ match_item.date_found.strftime('%b %d, %Y') }}
+                                            {% else %}
+                                                {{ match_item.date_lost.strftime('%b %d, %Y') }}
+                                            {% endif %}
+                                        </span>
+                                        <a href="{% if item_type == 'lost' %}{{ url_for('view_found_item', item_id=match_item.id) }}{% else %}{{ url_for('view_lost_item', item_id=match_item.id) }}{% endif %}" class="btn btn-sm btn-outline-primary">
+                                            View Details
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Contact Info -->
+            {% if (current_user.is_authenticated and current_user.id == item.user_id) or current_user.is_admin %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Contact Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1"><strong>Username:</strong> {{ owner.username }}</p>
+                        <p class="mb-1"><strong>Email:</strong> {{ owner.email }}</p>
+                        <p class="mb-3"><strong>Joined:</strong> {{ owner.created_at.strftime('%B %d, %Y') }}</p>
+                        
+                        {% if current_user.is_authenticated and current_user.id != item.user_id %}
+                            <a href="mailto:{{ owner.email }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-envelope me-1"></i> Contact via Email
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+            
+            <!-- Status Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Status Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="me-3">
+                            <span class="badge status-{{ item.status }} p-2">{{ item.status|capitalize }}</span>
+                        </div>
+                        <div>
+                            {% if item_type == 'lost' %}
+                                {% if item.status == 'unresolved' %}
+                                    <p class="mb-0 small">This item is still being searched for.</p>
+                                {% else %}
+                                    <p class="mb-0 small">This item has been found and returned to the owner.</p>
+                                {% endif %}
+                            {% else %}
+                                {% if item.status == 'unclaimed' %}
+                                    <p class="mb-0 small">This item is waiting to be claimed by its owner.</p>
+                                {% else %}
+                                    <p class="mb-0 small">This item has been claimed by its owner.</p>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    {% if item_type == 'lost' %}
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-clock me-1"></i> Lost {{ (now - item.date_lost).days }} days ago
+                        </p>
+                    {% else %}
+                        <p class="text-muted small mb-0">
+                            <i class="fas fa-clock me-1"></i> Found {{ (now - item.date_found).days }} days ago
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Similar Items -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-th-list me-2"></i>Similar Items</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% if item_type == 'lost' %}
+                            {% if similar_items|default([])|length > 0 %}
+                                {% for similar in similar_items %}
+                                    <a href="{{ url_for('view_lost_item', item_id=similar.id) }}" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">{{ similar.title }}</h6>
+                                            <small class="text-muted">{{ similar.date_lost.strftime('%b %d') }}</small>
+                                        </div>
+                                        <small class="text-muted">{{ similar.location_lost }}</small>
+                                    </a>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center p-4">
+                                    <p class="text-muted mb-0">No similar items found.</p>
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            {% if similar_items|default([])|length > 0 %}
+                                {% for similar in similar_items %}
+                                    <a href="{{ url_for('view_found_item', item_id=similar.id) }}" class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">{{ similar.title }}</h6>
+                                            <small class="text-muted">{{ similar.date_found.strftime('%b %d') }}</small>
+                                        </div>
+                                        <small class="text-muted">{{ similar.location_found }}</small>
+                                    </a>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center p-4">
+                                    <p class="text-muted mb-0">No similar items found.</p>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize status update forms if present
+    const statusUpdateForms = document.querySelectorAll('.status-update-form');
+    statusUpdateForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const itemType = this.querySelector('input[name="item_type"]').value;
+            const status = this.querySelector('input[name="status"]').value;
+            
+            let confirmMessage = '';
+            if (itemType === 'lost' && status === 'resolved') {
+                confirmMessage = 'Are you sure you want to mark this item as found? This means you have received your item back.';
+            } else if (itemType === 'found' && status === 'claimed') {
+                confirmMessage = 'Are you sure you want to mark this item as claimed? This means you have found the owner and returned the item.';
+            }
+            
+            if (confirmMessage && confirm(confirmMessage)) {
+                this.submit();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

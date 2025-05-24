@@ -1,0 +1,300 @@
+{% extends "base.html" %}
+
+{% block title %}My Dashboard - Lost and Found Management System{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">
+                    {{ current_user.username[0]|upper }}
+                </div>
+                <div>
+                    <p class="sidebar-username">{{ current_user.username }}</p>
+                    <p class="sidebar-role">User</p>
+                </div>
+            </div>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="{{ url_for('user_dashboard') }}" class="sidebar-link">
+                    <i class="fas fa-tachometer-alt sidebar-icon"></i> Dashboard
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('report_lost_item') }}" class="sidebar-link">
+                    <i class="fas fa-search sidebar-icon"></i> Report Lost Item
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('report_found_item') }}" class="sidebar-link">
+                    <i class="fas fa-box sidebar-icon"></i> Report Found Item
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('view_matches') }}" class="sidebar-link">
+                    <i class="fas fa-exchange-alt sidebar-icon"></i> View Matches
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('search_items') }}" class="sidebar-link">
+                    <i class="fas fa-search sidebar-icon"></i> Search Items
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ url_for('logout') }}" class="sidebar-link">
+                    <i class="fas fa-sign-out-alt sidebar-icon"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">User Dashboard</h1>
+            <div>
+                <a href="{{ url_for('report_lost_item') }}" class="btn btn-primary btn-sm me-2">
+                    <i class="fas fa-plus me-1"></i> Report Lost
+                </a>
+                <a href="{{ url_for('report_found_item') }}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-plus me-1"></i> Report Found
+                </a>
+            </div>
+        </div>
+        
+        <!-- Status Cards -->
+        <div class="status-cards">
+            <div class="status-card">
+                <div class="status-card-icon lost">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="status-card-content">
+                    <h3>{{ lost_items|length }}</h3>
+                    <p>Lost Items Reported</p>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-card-icon found">
+                    <i class="fas fa-box"></i>
+                </div>
+                <div class="status-card-content">
+                    <h3>{{ found_items|length }}</h3>
+                    <p>Found Items Reported</p>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-card-icon matched">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <div class="status-card-content">
+                    <h3>{{ potential_matches|length }}</h3>
+                    <p>Potential Matches</p>
+                </div>
+            </div>
+            
+            <div class="status-card">
+                <div class="status-card-icon pending">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="status-card-content">
+                    <h3>{{ 
+                        (lost_items|selectattr('status', 'equalto', 'resolved')|list|length) + 
+                        (found_items|selectattr('status', 'equalto', 'claimed')|list|length)
+                    }}</h3>
+                    <p>Resolved Items</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Matches Section (if any) -->
+        {% if potential_matches %}
+        <div class="item-table-container mb-4">
+            <div class="item-table-header">
+                <h4 class="item-table-title">Potential Matches ({{ potential_matches|length }})</h4>
+                <a href="{{ url_for('view_matches') }}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table item-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Your Lost Item</th>
+                            <th>Matching Found Item</th>
+                            <th>Match Status</th>
+                            <th>Match Score</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for match_data in potential_matches[:5] %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('view_lost_item', item_id=match_data.lost_item.id) }}">
+                                    {{ match_data.lost_item.title }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('view_found_item', item_id=match_data.found_item.id) }}">
+                                    {{ match_data.found_item.title }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge status-{{ match_data.match.status }}">
+                                    {{ match_data.match.status|capitalize }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="progress" style="height: 5px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" 
+                                         style="width: {{ (match_data.match.match_score * 100)|int }}%;" 
+                                         aria-valuenow="{{ (match_data.match.match_score * 100)|int }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100"></div>
+                                </div>
+                                <small class="text-muted">{{ (match_data.match.match_score * 100)|int }}% match</small>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('view_matches') }}" class="btn btn-sm btn-outline-primary">View Details</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Lost Items Section -->
+        <div class="item-table-container mb-4">
+            <div class="item-table-header">
+                <h4 class="item-table-title">My Lost Items ({{ lost_items|length }})</h4>
+                <a href="{{ url_for('report_lost_item') }}" class="btn btn-sm btn-primary">Report New</a>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table item-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Date Lost</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if lost_items %}
+                            {% for item in lost_items %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('view_lost_item', item_id=item.id) }}">
+                                        {{ item.title }}
+                                    </a>
+                                </td>
+                                <td>{{ item.date_lost.strftime('%b %d, %Y') }}</td>
+                                <td>{{ item.location_lost }}</td>
+                                <td>
+                                    <span class="badge status-{{ item.status }}">
+                                        {{ item.status|capitalize }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="item-table-actions">
+                                        <a href="{{ url_for('view_lost_item', item_id=item.id) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    <i class="fas fa-search fa-2x mb-3 text-muted"></i>
+                                    <p class="text-muted mb-0">You haven't reported any lost items yet.</p>
+                                    <a href="{{ url_for('report_lost_item') }}" class="btn btn-sm btn-primary mt-2">
+                                        Report a Lost Item
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Found Items Section -->
+        <div class="item-table-container">
+            <div class="item-table-header">
+                <h4 class="item-table-title">My Found Items ({{ found_items|length }})</h4>
+                <a href="{{ url_for('report_found_item') }}" class="btn btn-sm btn-secondary">Report New</a>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table item-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Date Found</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if found_items %}
+                            {% for item in found_items %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('view_found_item', item_id=item.id) }}">
+                                        {{ item.title }}
+                                    </a>
+                                </td>
+                                <td>{{ item.date_found.strftime('%b %d, %Y') }}</td>
+                                <td>{{ item.location_found }}</td>
+                                <td>
+                                    <span class="badge status-{{ item.status }}">
+                                        {{ item.status|capitalize }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="item-table-actions">
+                                        <a href="{{ url_for('view_found_item', item_id=item.id) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="text-center py-4">
+                                    <i class="fas fa-box-open fa-2x mb-3 text-muted"></i>
+                                    <p class="text-muted mb-0">You haven't reported any found items yet.</p>
+                                    <a href="{{ url_for('report_found_item') }}" class="btn btn-sm btn-secondary mt-2">
+                                        Report a Found Item
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
